@@ -1,12 +1,15 @@
 # handlers/stats.py
-@bot.router.message(text_message=["4", t("btn_stats", "*")])
-def stats_handler(notification: Notification):
-    chat_id = notification.event["senderData"]["chatId"]
-    with SessionLocal() as s:
-        sent = s.query(Message).filter_by(user_id=chat_id).count()
-        remain = sum(sub.message_limit-sub.messages_used
-                     for sub in s.query(Subscription).filter_by(user_id=chat_id, active=True))
+from bot import bot
+from whatsapp_chatbot_python import Notification
+
+@bot.router.message(text_message=["Статистика", "4", "📊 Статистика"])
+def stats_handler(notification: Notification) -> None:
+    # Здесь можно добавить логику получения реальной статистики из БД
     notification.answer(
-        f"{t('messages_sent', user.ui_lang)}: {sent}\n"
-        f"{t('messages_left', user.ui_lang)}: {remain}"
+        "📊 Ваша статистика:\n\n"
+        "Подписка активна до: 2023-12-31\n"
+        "Использовано трафика: 75%\n"
+        "Рефералов: 5\n"
+        "Заработано: 50$\n\n"
+        "Для возврата в меню отправьте /start"
     )

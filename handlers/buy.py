@@ -1,20 +1,26 @@
 # handlers/buy.py
 from bot import bot
 from whatsapp_chatbot_python import Notification
-from services.db import SessionLocal
-from utils import create_payment_link       # из вашего payment.py
-from services.i18n import t
 
-@bot.router.message(text_message=["1", t("btn_buy", "*")])
-def buy_handler(notification: Notification):
-    chat_id = notification.event["senderData"]["chatId"]
-    # получаем юзера из БД
-    with SessionLocal() as s:
-        user = s.query(User).filter_by(telegram_id=chat_id).first()
-        # …либо создаём, если нет
-    # генерируем ссылку на оплату (тот же код, что в Telegram-скрипте)
-    link = create_payment_link(user.id, ...)
 
+@bot.router.message(text_message=["Купить подписку", "1"])
+def buy_handler(notification: Notification) -> None:
     notification.answer(
-        t(user.ui_lang, "payment_link") + "\n" + link
+        "Выберите тип подписки:\n\n"
+        "1. Месячная подписка - 10$\n"
+        "2. Годовая подписка - 100$\n"
+        "3. Пожизненная подписка - 500$\n\n"
+        "Отправьте номер выбранного варианта."
     )
+
+
+@bot.router.message(text_message=["1", "2", "3"])
+def subscription_type_handler(notification: Notification) -> None:
+    choice = notification.event["messageData"]["textMessageData"]["textMessage"].strip()
+
+    if choice == "1":
+        notification.answer("Ссылка для оплаты месячной подписки: [ссылка]")
+    elif choice == "2":
+        notification.answer("Ссылка для оплаты годовой подписки: [ссылка]")
+    elif choice == "3":
+        notification.answer("Ссылка для оплаты пожизненной подписки: [ссылка]")
